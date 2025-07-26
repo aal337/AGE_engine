@@ -19,23 +19,7 @@ mostly-unused=true
 #[profile.dev]
 #codegen-backend = "cranelift"
 
-[[bin]]
-name="audio"
-path = "bins/audio.rs"
-
-[[bin]]
-name="graphics"
-path="bins/graphics.rs"
-
-[[bin]]
-name="schedule"
-path="bins/schedule.rs"
-
 #DEPENDENCIES
-
-#general
-
-#/
 
 #audio
 
