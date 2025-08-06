@@ -1,0 +1,12 @@
+[package]
+name = "audio"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+
+[dependencies.rodio]
+version="0.20.1"
+
+[dependencies.cpal]
+version = "0.16.0"
