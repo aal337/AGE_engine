@@ -1,70 +1,31 @@
 #cargo-features = ["codegen-backend"]
 
+[workspace]
+resolver = "3"
+members = ["audio", "core", "event-derive", "graphics", "graphics_core", "quickstart","event-derive"]
+#remove when ready
+publish = false
+
 [package]
 name = "age_engine"
 version = "0.1.0"
 edition = "2024"
 authors = ["Jonathan Schmittat"]
-resolver = "3"
-#remove when ready
-publish = false
+
+[dependencies]
+#graphics={path="./graphics"}
+#graphics_core={path="./graphics_core"}
+audio={path="./audio"}
+#quickstart={path="./quickstart"}
+core={path="./core"}
+event-derive={path="./event-derive"}
+
+
+
 
 [build]
 rustflags = ["-Z", "threads=8"]
 
-[hints]
-#nightly, still good to add it
-mostly-unused=true
 
 #[profile.dev]
 #codegen-backend = "cranelift"
-
-#DEPENDENCIES
-
-#audio
-
-[dependencies.rodio]
-version="0.20.1"
-
-[dependencies.cpal]
-version = "0.16.0"
-
-#graphics
-
-[dependencies.anyhow]
-version="1.0"
-
-[dependencies.winit]
-version="0.30"
-features = ["android-native-activity"]
-
-[dependencies.env_logger]
-version = "0.10"
-
-[dependencies.wgpu]
-version = "26.0.1"
-default-features = false
-features = ["dx12","metal","gles","vulkan"]
-
-[dependencies.image]
-version = "0.24"
-default-features = false
-features = ["png", "jpeg"]
-
-[dependencies.log]
-version = "0.4"
-
-[dependencies.pollster]
-version = "0.3"
-
-[dependencies.bytemuck]
-version = "1.16"
-features = ["derive"]
-
-[dependencies.cgmath]
-version = "0.18.0"
-
-[dependencies.tobj]
-version = "3.2"
-default-features = false
-features = ["async"]
