@@ -17,7 +17,7 @@ authors = ["Jonathan Schmittat"]
 #graphics_core={path="./graphics_core"}
 audio={path="./audio"}
 #quickstart={path="./quickstart"}
-core={path="./core"}
+age_core={path="./age_core"}
 event-derive={path="./event-derive"}
 
 
