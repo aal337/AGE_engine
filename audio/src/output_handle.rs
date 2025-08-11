@@ -52,9 +52,9 @@ impl<O: OutputHandlerState> OutputHandle<O> {
     }
 
     //important: NON-fatal error, can be tried anytime, Result can also be safely ignored - maybe another type??
-    fn unload_file(&mut self, name: String) -> Result<(), AudioError> {
+    pub fn unload_file(&mut self, name: String) -> Result<(), AudioError> {
         if self.loaded_files.remove(&name).is_none() {
-            return Err(AudioError::FileNotLoaded);
+            return Err(AudioError::FileNotLoaded(name));
         }
         Ok(())
     }
@@ -69,8 +69,7 @@ impl OutputHandle<OutputDisabled> {
     pub fn new() -> OutputHandle<OutputDisabled> {
         Default::default()
     }
-
-    //maybe one day I'll find a shorter name...
+    
     pub fn activate_output(self) -> Result<OutputHandle<OutputEnabled>, AudioError> {
         let builder = OutputStreamBuilder::from_default_device().map_err(AudioError::OutputStreamBuilderError)?;
         let stream = builder.open_stream().map_err(AudioError::StreamError)?;
@@ -114,7 +113,7 @@ impl OutputHandle<OutputEnabled> {
     pub fn play_loaded(&mut self, name: String) -> Result<(), AudioError> {
         let data = match self.loaded_files.get(&name) {
             Some(data) => data.clone(),
-            None => return Err(AudioError::FileNotLoaded),
+            None => return Err(AudioError::FileNotLoaded(name)),
         };
         let decoder = Decoder::new(data).map_err(AudioError::DecoderError)?;
         self.sink
