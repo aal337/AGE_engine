@@ -65,9 +65,10 @@ impl OutputHandle<OutputDisabled> {
     pub fn new() -> OutputHandle<OutputDisabled> {
         Default::default()
     }
-    
+
     pub fn activate_output(self) -> Result<OutputHandle<OutputEnabled>, AudioError> {
-        let builder = OutputStreamBuilder::from_default_device().map_err(AudioError::OutputStreamBuilderError)?;
+        let builder = OutputStreamBuilder::from_default_device()
+            .map_err(AudioError::OutputStreamBuilderError)?;
         let stream = builder.open_stream().map_err(AudioError::StreamError)?;
         let mut result = OutputHandle::<OutputEnabled> {
             stream: Some(stream),
@@ -75,8 +76,8 @@ impl OutputHandle<OutputDisabled> {
             loaded_files: self.loaded_files,
             _marker: PhantomData,
         };
-        let stream_ref=result.stream.as_ref().expect("Just set it to Some(_)");
-        let mixer=stream_ref.mixer();
+        let stream_ref = result.stream.as_ref().expect("Just set it to Some(_)");
+        let mixer = stream_ref.mixer();
 
         result.sink = Some(Sink::connect_new(mixer));
         Ok(result)
@@ -135,9 +136,9 @@ impl OutputHandle<OutputEnabled> {
 
     fn is_paused(&self) -> bool {
         //again, match to destructure without taking ownership
-        match self.sink {
-            Some(ref sink) => sink.is_paused(),
-            None => unreachable!("Basically never 'None' if output is enabled"),
-        }
+        self.sink
+            .as_ref()
+            .expect("Basically never 'None' if output is enabled")
+            .is_paused()
     }
 }
