@@ -62,14 +62,15 @@ impl Game {
     }
 
     pub fn exit(&mut self, event_loop: ActiveEventLoop) {}
-
-    //let it return () later (TODO!)
-    pub fn run(mut self) -> anyhow::Result<()> {
+    
+    pub fn run(mut self) {
         env_logger::init();
         let event_loop = EventLoop::with_user_event().build()?;
         self.prepare();
-        event_loop.run_app(&mut self)?;
-        Ok(())
+        if let Err(e) = event_loop.run_app(&mut self) {
+            log::error!("Fatal error: \"{}\"", e);
+            panic!("An error occured: {}", e);
+        };
     }
 }
 
@@ -135,8 +136,8 @@ impl ApplicationHandler<Game> for Game {
                         }
                     }
                 }
-            },
-            event =>  self.propagate_event(event),
+            }
+            event => self.propagate_event(event),
         };
     }
 }
