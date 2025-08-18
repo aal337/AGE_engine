@@ -1,6 +1,6 @@
 //use anyhow::*;
-use image::{GenericImageView, ImageError};
 use crate::errors::TextureError;
+use image::{GenericImageView, ImageError};
 
 pub struct Texture {
     pub texture: wgpu::Texture,
@@ -53,13 +53,12 @@ impl Texture {
         }
     }
 
-    #[allow(dead_code)]
     pub fn from_bytes(
         device: &wgpu::Device,
         queue: &wgpu::Queue,
         bytes: &[u8],
         label: &str,
-    ) -> Result<Self,TextureError> {
+    ) -> Result<Self, TextureError> {
         let img = image::load_from_memory(bytes).map_err(TextureError::ImageError)?;
         Self::from_image(device, queue, &img, Some(label))
     }
@@ -70,7 +69,7 @@ impl Texture {
         queue: &wgpu::Queue,
         img: &image::DynamicImage,
         label: Option<&str>,
-    ) -> Result<Self,TextureError> {
+    ) -> Result<Self, TextureError> {
         let dimensions = img.dimensions();
         let rgba = img.to_rgba8();
 
