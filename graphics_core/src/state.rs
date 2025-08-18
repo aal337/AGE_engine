@@ -1,6 +1,7 @@
-use super::camera::{Camera, CameraController, CameraUniform};
+use super::camera::{Camera, CameraUniform};
 use super::instance::{Instance, InstanceRaw};
-use super::model::{DrawModel, Vertex};
+use super::model::{DrawModel, Model, Models, Vertex};
+
 //temp
 const NUM_INSTANCES_PER_ROW: u16 = 1;
 use super::{model, resources, texture};
@@ -8,54 +9,54 @@ use cgmath::prelude::*;
 use cgmath::{InnerSpace, Zero};
 use std::iter;
 use std::sync::Arc;
+use wgpu::Color;
 use wgpu::util::DeviceExt;
-use winit::event_loop::ActiveEventLoop;
-use winit::keyboard::KeyCode;
 use winit::window::Window;
 
 pub struct State {
+    //new!
+    pub clear_color: wgpu::Color,
     //stays
-    surface: wgpu::Surface<'static>,
+    pub surface: wgpu::Surface<'static>,
     //stays
-    device: wgpu::Device,
+    pub device: wgpu::Device,
     //stays
-    queue: wgpu::Queue,
+    pub queue: wgpu::Queue,
     //stays
-    config: wgpu::SurfaceConfiguration,
+    pub config: wgpu::SurfaceConfiguration,
     //stays
-    is_surface_configured: bool,
+    pub is_surface_configured: bool,
     //stays
-    render_pipeline: wgpu::RenderPipeline,
+    pub render_pipeline: wgpu::RenderPipeline,
     //getting changed
-    models: model::Models,
+    pub models: model::Models,
     //stays very likely
-    camera: Camera,
-    //prob going to remove this
-    camera_controller: CameraController,
+    pub camera: Camera,
     //idk
-    camera_uniform: CameraUniform,
+    pub camera_uniform: CameraUniform,
     //we'll see
-    camera_buffer: wgpu::Buffer,
+    pub camera_buffer: wgpu::Buffer,
     //same as above
-    camera_bind_group: wgpu::BindGroup,
+    pub camera_bind_group: wgpu::BindGroup,
     //stays
-    instances: Vec<Instance>,
-    instance_buffer: wgpu::Buffer,
-    depth_texture: texture::Texture,
+    pub instances: Vec<Instance>,
+    //for the vertex buffer, stays ig
+    pub instance_buffer: wgpu::Buffer,
+    //remove?
+    pub depth_texture: texture::Texture,
     //stays
     pub window: Arc<Window>,
+    pub obj_model: Model,
 }
 
 use crate::config::StateConfig;
 use crate::errors::StateCreationError;
 
 impl State {
-    #[inline]
-    pub fn apply_config(self,config: StateConfig) -> Self {
-        config.apply_to_state(self)
-    }
-
-    pub async fn new(window: Arc<Window>) -> Result<State,StateCreationError> {
+    pub async fn new(
+        window: Arc<Window>,
+        general_config: StateConfig,
+    ) -> Result<State, StateCreationError> {
         let size = window.inner_size();
 
         // The instance is a handle to our GPU
@@ -74,7 +75,8 @@ impl State {
                 compatible_surface: Some(&surface),
                 force_fallback_adapter: false,
             })
-            .await.map_err(StateCreationError::RequestAdapterError)?;
+            .await
+            .map_err(StateCreationError::RequestAdapterError)?;
         log::warn!("device and queue");
         let (device, queue) = adapter
             .request_device(&wgpu::DeviceDescriptor {
@@ -88,7 +90,7 @@ impl State {
             })
             .await
             .map_err(StateCreationError::RequestDeviceError)?;
-
+        let models = Models::new();
         log::warn!("Surface");
         let surface_caps = surface.get_capabilities(&adapter);
         // Shader code in this tutorial assumes an Srgb surface texture. Using a different
@@ -144,7 +146,6 @@ impl State {
             znear: 0.1,
             zfar: 100.0,
         };
-        let camera_controller = CameraController::new(0.2);
 
         let mut camera_uniform = CameraUniform::new();
         camera_uniform.update_view_proj(&camera);
@@ -155,7 +156,7 @@ impl State {
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         });
 
-        //get it to the "distribution.rs" file
+        //TODO!: get it to the "distribution.rs" file
         const SPACE_BETWEEN: f32 = 3.0;
         let instances = (0..NUM_INSTANCES_PER_ROW)
             .flat_map(|z| {
@@ -231,6 +232,7 @@ impl State {
                 push_constant_ranges: &[],
             });
 
+        //TODO!: configs!
         let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             label: Some("Render Pipeline"),
             layout: Some(&render_pipeline_layout),
@@ -285,17 +287,20 @@ impl State {
             cache: None,
         });
 
+        let clear_color = general_config.color;
+
         Ok(Self {
+            obj_model: obj_model.unwrap(),
             surface,
             device,
             queue,
             config,
+            clear_color,
             is_surface_configured: false,
             render_pipeline,
             //TODO!
             models,
             camera,
-            camera_controller,
             camera_buffer,
             camera_bind_group,
             camera_uniform,
@@ -321,19 +326,11 @@ impl State {
                 texture::Texture::create_depth_texture(&self.device, &self.config, "depth_texture");
         }
     }
-    //TODO!: remove this function
-    pub fn handle_key(&mut self, event_loop: &ActiveEventLoop, key: KeyCode, pressed: bool) {
-        if key == KeyCode::Escape && pressed {
-            event_loop.exit();
-        } else {
-            self.camera_controller.handle_key(key, pressed);
-        }
-    }
 
     //TODO!: refactor or remove and replace
     pub fn update(&mut self) {
-        self.camera_controller.update_camera(&mut self.camera);
-        log::info!("{:?}", self.camera);
+        //self.camera_controller.update_camera(&mut self.camera);
+        //log::info!("{:?}", self.camera);
         self.camera_uniform.update_view_proj(&self.camera);
         log::info!("{:?}", self.camera_uniform);
         self.queue.write_buffer(
@@ -370,12 +367,8 @@ impl State {
                     view: &view,
                     resolve_target: None,
                     ops: wgpu::Operations {
-                        load: wgpu::LoadOp::Clear(wgpu::Color {
-                            r: 0.1,
-                            g: 0.2,
-                            b: 0.3,
-                            a: 1.0,
-                        }),
+                        load: wgpu::LoadOp::Clear(self.clear_color),
+                        //TODO!: come back here later!!
                         store: wgpu::StoreOp::Store,
                     },
                     depth_slice: None,
