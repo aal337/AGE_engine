@@ -1,27 +1,25 @@
-use std::env::current_dir;
-use std::fs::{read_dir, DirEntry};
+use super::texture;
+use crate::errors::{ModelError, TextureError};
 use std::io::{BufReader, Cursor};
 use std::path::Path;
 use tobj::tokio as tobj_tokio;
-use super::texture;
-use crate::errors::{ModelError, TextureError};
 use wgpu::util::DeviceExt;
 
 use super::model;
 
-pub async fn load_string(file_name: &str) -> std::io::Result<String> {
+pub async fn load_string(path: &Path) -> std::io::Result<String> {
     let txt = {
-        let path = Path::new("res").join(file_name);
+        //let path = Path::new("res").join(path);
+        //assert!(path.exists(), "{} does not exist", path.display());
         std::fs::read_to_string(path)?
     };
-
     Ok(txt)
 }
 
-pub async fn load_binary(file_name: &str) -> std::io::Result<Vec<u8>> {
+pub async fn load_binary(path: &Path) -> std::io::Result<Vec<u8>> {
     let data = {
-        let path =std::path::Path::new("assets").join(file_name);
-        dbg!(current_dir().unwrap().file_name().unwrap());
+        //let path = Path::new("res").join(path);
+        //assert!(path.exists(), "{} does not exist", path.display());
         std::fs::read(path)?
     };
 
@@ -29,14 +27,18 @@ pub async fn load_binary(file_name: &str) -> std::io::Result<Vec<u8>> {
 }
 
 pub async fn load_texture(
-    file_name: &str,
+    path: &Path,
     device: &wgpu::Device,
     queue: &wgpu::Queue,
 ) -> Result<texture::Texture, TextureError> {
-    let data = load_binary(file_name)
-        .await
-        .map_err(TextureError::IoError)?;
-    texture::Texture::from_bytes(device, queue, &data, file_name)
+    let data = load_binary(path).await.map_err(TextureError::IoError)?;
+    //TODO!: no .unwrap()
+    texture::Texture::from_bytes(
+        device,
+        queue,
+        &data,
+        path.file_name().unwrap().to_str().unwrap(),
+    )
 }
 
 pub async fn load_model(
@@ -45,7 +47,8 @@ pub async fn load_model(
     queue: &wgpu::Queue,
     layout: &wgpu::BindGroupLayout,
 ) -> Result<model::Model, ModelError> {
-    let obj_text = load_string(file_name).await.map_err(ModelError::IoError)?;
+    let path = Path::new(file_name);
+    let obj_text = load_string(path).await.map_err(ModelError::IoError)?;
     let obj_cursor = Cursor::new(obj_text);
     let mut obj_reader = tokio::io::BufReader::new(obj_cursor);
 
@@ -57,19 +60,31 @@ pub async fn load_model(
             ..Default::default()
         },
         |p| async move {
-            let mat_text = load_string(&p).await.unwrap();
+            let mat_text =
+                //make this more efficient later
+                load_string(Path::new(path.parent().expect("TODO")).join(&p).as_ref())
+                    .await
+                    .map_err(|_e| tobj::LoadError::ReadError)?;
             tobj::load_mtl_buf(&mut BufReader::new(Cursor::new(mat_text)))
         },
     )
     .await
     .map_err(ModelError::LoadError)?;
 
+    dbg!(&obj_materials.as_ref().unwrap().len());
+
     let mut materials = Vec::new();
     for m in obj_materials.map_err(ModelError::LoadError)? {
         //TODO!: remove .unwrap()
-        let diffuse_texture = load_texture(&m.diffuse_texture.unwrap(), device, queue)
-            .await
-            .map_err(ModelError::TextureError)?;
+        let diffuse_texture = load_texture(
+            Path::new(path.parent().expect("TODO"))
+                .join(m.diffuse_texture.unwrap())
+                .as_ref(),
+            device,
+            queue,
+        )
+        .await
+        .map_err(ModelError::TextureError)?;
         let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
             layout,
             entries: &[
