@@ -3,22 +3,25 @@ use crate::events::EventHandle;
 use crate::scheduler::Scheduler;
 use anymap::AnyMap;
 use graphics_core::state::State;
+use std::convert::identity;
+use std::path::Path;
 
 pub struct Game {
-    resources: AnyMap,
-    scheduler: Scheduler,
-    events: EventHandle,
+    pub(crate) resources: AnyMap,
+    pub(crate) scheduler: Scheduler,
+    pub(crate) events: EventHandle,
     //only existent while setup
-    graphics_state_config: Option<StateConfig>,
-    graphics_state: Option<State>,
+    pub(crate) graphics_state_config: Option<StateConfig>,
+    pub(crate) graphics_state: Option<State>,
     //make it customisable later
-    window_attributes: WindowAttributes,
+    pub(crate) window_attributes: WindowAttributes,
     //TODO!: commands scheduler
-    commands: Commands,
+    pub(crate) commands: Commands,
+    pub(crate) world: World,
     //?
 }
 
-impl Default for Game {
+impl<'a> Default for Game {
     fn default() -> Self {
         Self {
             resources: AnyMap::new(),
@@ -28,6 +31,7 @@ impl Default for Game {
             window_attributes: WindowAttributes::default(),
             commands: Commands::new(),
             graphics_state_config: Some(StateConfig::default()),
+            world: World::new(),
         }
     }
 }
@@ -54,11 +58,7 @@ impl Game {
     }
 
     #[inline]
-    pub fn prepare(&mut self) {
-        self.scheduler
-            .setup(&mut self.commands, &mut self.resources, &mut self.events);
-        self.events.update();
-    }
+    pub fn prepare(&mut self) {}
 
     fn exit(&mut self, event_loop: ActiveEventLoop) {}
 
@@ -73,7 +73,7 @@ impl Game {
             error!("{}", message);
             panic!("{}", message);
         }
-        self.prepare();
+        println!("Preparations finished");
         if let Err(e) = event_loop
             .expect("Would have panicked if there was an error with the event loop")
             .run_app(&mut self)
@@ -97,6 +97,32 @@ impl Game {
         config.color = wgpu::Color { r, g, b, a };
         self
     }
+
+    pub fn with_model<P: Into<String>>(self, name: &'static str, path: P) -> Self {
+        fn inner(mut game: Game, name: &'static str, path: String) -> Game {
+            let config = game
+                .graphics_state_config
+                .as_mut()
+                .expect("Should be Some(_) before running");
+            config.models.insert(name, path);
+            game
+        }
+        //as_ref() cosmetic here, but who cares...
+        inner(self, name, path.into())
+    }
+
+    pub fn with_image<P: AsRef<Path>>(self, path: P, name: &'static str) -> Self {
+        todo!();
+        /*fn inner(mut game: Game, path: &Path, name: &'static str) -> Game {
+            let config = game
+                .graphics_state_config
+                .as_mut()
+                .expect("Should be Some(_) before running");
+            config.assets.insert(name, Asset::Image(path.to_owned()));
+            game
+        }
+        inner(self, path.as_ref(), name)*/
+    }
 }
 
 //internal helper functions
@@ -111,7 +137,8 @@ use log::{error, warn};
 use std::sync::Arc;
 //use crate::custom_events::input::{SimpleKeyEvent, SimpleMouseKeyEvent};
 use crate::aliases::Commands;
-use graphics_core::config::StateConfig;
+use crate::world::{ModelState, World};
+use graphics_core::config::{Asset, StateConfig};
 use winit::window::WindowAttributes;
 use winit::{
     application::ApplicationHandler,
@@ -143,11 +170,18 @@ impl ApplicationHandler<Game> for Game {
                     .take()
                     .expect("Set to Some(_) before running the game"),
             ))
+            //TODO: proper exception handling
             .expect("State creation needs to work"),
         );
+        //once logic
+
+        self.scheduler
+            .setup(&mut self.commands, &mut self.resources, &mut self.events);
+
+        self.events.update();
     }
 
-    fn user_event(&mut self, _event_loop: &ActiveEventLoop, mut event: Game) {
+    fn user_event(&mut self, _event_loop: &ActiveEventLoop, event: Game) {
         *self = event;
     }
     fn window_event(
@@ -162,25 +196,41 @@ impl ApplicationHandler<Game> for Game {
 
         match event {
             WindowEvent::CloseRequested => event_loop.exit(),
-            //I should refactor that later
+            //I should refactor that later - TODO
             WindowEvent::Resized(size) => {
                 if let Some(graphics_state) = &mut self.graphics_state {
                     graphics_state.resize(size.width, size.height)
                 };
             }
             WindowEvent::RedrawRequested => {
-                if let Some(graphics_state) = &mut self.graphics_state {
-                    graphics_state.update();
-                    match graphics_state.render() {
-                        Ok(_) => {}
-                        // Reconfigure the surface if it's lost or outdated
-                        Err(wgpu::SurfaceError::Lost | wgpu::SurfaceError::Outdated) => {
-                            let size = graphics_state.window.inner_size();
-                            graphics_state.resize(size.width, size.height);
+                //TODO: check if this is actually necessary later
+                if self.graphics_state.is_none() {
+                    return;
+                }
+
+                self.graphics_state.as_mut().expect("GENERIC").update();
+
+                match self.graphics_state.as_mut().expect("fgfdsyxcfr").render(
+                    self.world.to_be_rendered.iter().filter_map(|id| {
+                        //TODO: .expect messages
+                        //TODO: more efficient borrowing instead of only .as_ref / .as_mut
+                        match self.world.entities.get(id).expect("").model {
+                            ModelState::Visible(model_id) => Some(model_id),
+                            _ => None,
                         }
-                        Err(e) => {
-                            log::error!("Unable to render {}", e);
-                        }
+                    }),
+                ) {
+                    Ok(_) => {}
+                    // Reconfigure the surface if it's lost or outdated
+                    Err(wgpu::SurfaceError::Lost | wgpu::SurfaceError::Outdated) => {
+                        let size = self.graphics_state.as_ref().expect("").window.inner_size();
+                        self.graphics_state
+                            .as_mut()
+                            .expect("")
+                            .resize(size.width, size.height);
+                    }
+                    Err(e) => {
+                        log::error!("Unable to render {}", e);
                     }
                 }
             }
