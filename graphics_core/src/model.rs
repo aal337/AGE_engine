@@ -1,25 +1,10 @@
 use super::texture;
-use std::collections::VecDeque;
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::ops::Range;
 use std::path::Path;
 
-pub struct Models {
-    loaded_models: VecDeque<Model>,
-}
-
-impl Models {
-    pub fn new() -> Models {
-        Self {
-            loaded_models: VecDeque::new(),
-        }
-    }
-    pub fn load_model<P: AsRef<Path>>(&mut self, path: P) {
-        fn inner(models: &mut Models, path: &Path) {}
-        inner(self, path.as_ref());
-    }
-}
-
-//everything down here is from Sotrh's tutorial
+//all the vertex stuff down here is from Sotrh's tutorial
+//TODO!: proper attribution!
 pub trait Vertex {
     fn desc() -> wgpu::VertexBufferLayout<'static>;
 }
@@ -59,12 +44,14 @@ impl Vertex for ModelVertex {
     }
 }
 
+#[derive(Clone, Debug)]
 pub struct Material {
     pub name: String,
     pub diffuse_texture: texture::Texture,
     pub bind_group: wgpu::BindGroup,
 }
 
+#[derive(Clone, Debug)]
 pub struct Mesh {
     pub name: String,
     pub vertex_buffer: wgpu::Buffer,
@@ -73,6 +60,7 @@ pub struct Mesh {
     pub material: usize,
 }
 
+#[derive(Clone, Debug)]
 pub struct Model {
     pub meshes: Vec<Mesh>,
     pub materials: Vec<Material>,
