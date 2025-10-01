@@ -19,7 +19,6 @@ use winit::event_loop::ActiveEventLoop;
 use winit::keyboard::{KeyCode, PhysicalKey};
 use winit::window::Window;
 
-#[derive(Debug)]
 pub struct State {
     pub mouse_pressed: bool,
 
@@ -336,7 +335,7 @@ impl State {
         });
 
         camera_uniform.update_view_proj(&camera, &projection);
-        
+
 
         Ok(Self {
             mouse_pressed: false,
