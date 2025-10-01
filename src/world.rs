@@ -52,13 +52,12 @@ impl ModelState {
         models: &FastHashMap<&'static str, Model>,
         id: &'static str,
     ) -> Result<(), ()> {
-        match models.get(id) {
-            Some(_) => {}
-            None => return Err(()),
+        if !models.contains_key(id) {
+            return Err(());
         };
         *self = match self {
-            ModelState::NoModel => ModelState::NoModel,
-            ModelState::Visible(_) => ModelState::Visible(id),
+            //TODO: visibilty default!
+            ModelState::NoModel | ModelState::Visible(_) => ModelState::Visible(id),
             ModelState::Invisible(_) => ModelState::Invisible(id),
         };
         Ok(())
@@ -105,6 +104,7 @@ impl Entity {
 }
 
 //internal state machine for all objects that render
+#[derive(Debug)]
 pub(crate) struct World {
     id_counter: u32,
     pub entities: FastHashMap<u32, Entity>, //?
@@ -220,6 +220,14 @@ pub mod commands {
     pub struct SetEntityModel(pub u32, pub &'static str);
     impl Command for SetEntityModel {
         fn execute(&self, game: &mut Game) {
+            /*println!(
+                "after: {:?} ({})",
+                game.world
+                    .entities
+                    .get(&self.0)
+                    .map(|entity| { &entity.model }),
+                self.0
+            );*/
             if let Some(entity) = game.world.entities.get_mut(&self.0) {
                 let _ = entity.model.set_model(
                     &game
@@ -230,6 +238,14 @@ pub mod commands {
                     &self.1,
                 );
             }
+            /*println!(
+                "after: {:?} ({})",
+                game.world
+                    .entities
+                    .get(&self.0)
+                    .map(|entity| { &entity.model }),
+                self.0
+            );*/
         }
     }
 }
