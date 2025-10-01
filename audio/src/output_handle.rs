@@ -88,7 +88,7 @@ impl OutputHandle<OutputDisabled> {
 //NO get_device (but get_device_name) because it instantly gives an error if you try to use a device that just can't work for whatever reason
 //meaning you directly get an error
 impl OutputHandle<OutputEnabled> {
-    fn disable_output(self) -> OutputHandle<OutputDisabled> {
+    pub fn disable_output(self) -> OutputHandle<OutputDisabled> {
         OutputHandle::<OutputDisabled> {
             stream: None,
             sink: None,
@@ -120,21 +120,21 @@ impl OutputHandle<OutputEnabled> {
         Ok(())
     }
 
-    fn pause(&mut self) {
+    pub fn pause(&mut self) {
         self.sink
             .as_mut()
             .expect("Basically never 'None' if output is enabled")
             .pause();
     }
 
-    fn play(&mut self) {
+    pub fn play(&mut self) {
         self.sink
             .as_mut()
             .expect("Basically never 'None' if output is enabled")
             .play();
     }
 
-    fn is_paused(&self) -> bool {
+    pub fn is_paused(&self) -> bool {
         //again, match to destructure without taking ownership
         self.sink
             .as_ref()
