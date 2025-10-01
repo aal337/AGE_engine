@@ -253,7 +253,6 @@ impl State {
             let loaded = load_model(&path, &device, &queue, &texture_bind_group_layout)
                 .await
                 .map_err(StateCreationError::ModelError)?;
-            dbg!(&loaded);
             models.insert(name, loaded);
         }
 
