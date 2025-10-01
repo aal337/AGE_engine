@@ -1,3 +1,5 @@
+extern crate core;
+
 mod aliases;
 mod camera;
 mod commands;
