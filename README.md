@@ -1,5 +1,5 @@
 # AGE_engine
-AGE, short for "Another Game Engine", is supposed to be a simple game engine written in Rust with basic support for things like 2d & 3d graphics, assets and so on. Making a project using it should not take much boilerplate, be straightforward and also beginner-friendly.
+AGE, short for "Another Game Engine", is supposed to be a simple toy game engine written in Rust with basic support for things like 2d & 3d graphics, assets and so on. Making a project using it should not take much boilerplate, be straightforward and also beginner-friendly. It is mostly working, except for the graphics.
 ## Inspiration
 Even though this project isn't finished by far, I already have some sources that do and will influence this project:
 - The awesome Bevy engine: **Game Builder Pattern** (it's probably not unique to the engine, but it inspired me, so I utilize it too), **Systems** (My engine isn't an ECS, but you can add startup and update functions with three parameters), **Resources** (prob also not really unique, but I do know it from there, also, the AnyMap isn't really inspired there, I found it somewhere else and since it's so convenient I use it)
