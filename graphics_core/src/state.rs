@@ -21,7 +21,6 @@ use winit::window::Window;
 
 #[derive(Debug)]
 pub struct State {
-    pub test_model: Model,
     pub mouse_pressed: bool,
 
     pub camera_controller: CameraController,
@@ -55,11 +54,6 @@ pub struct State {
     pub camera_bind_group: wgpu::BindGroup,
     //stays
     pub instances: Vec<Instance>,
-    //for the vertex buffer, remove
-    pub instance_buffer: wgpu::Buffer,
-    //remove? - yes
-    pub depth_texture: texture::Texture,
-    // /\ replaces, only depth texture for now for easier usage
     pub depth_textures: Vec<texture::Texture>,
     //stays
     pub window: Arc<Window>,
