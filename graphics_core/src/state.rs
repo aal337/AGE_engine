@@ -54,6 +54,11 @@ pub struct State {
     pub camera_bind_group: wgpu::BindGroup,
     //stays
     pub instances: Vec<Instance>,
+    //for the vertex buffer, remove
+    pub instance_buffer: wgpu::Buffer,
+    //remove? - yes
+    pub depth_texture: texture::Texture,
+    // /\ replaces, only depth texture for now for easier usage
     pub depth_textures: Vec<texture::Texture>,
     //stays
     pub window: Arc<Window>,
@@ -331,16 +336,9 @@ impl State {
         });
 
         camera_uniform.update_view_proj(&camera, &projection);
-
-        let test_model=
-            load_model(r"C:\Users\jonat\RustroverProjects\SummerOfMaking2025\age_engine\graphics_core\res\cube.obj",
-                       &device,
-                       &queue,
-                       &texture_bind_group_layout,
-            ).await.unwrap();
+        
 
         Ok(Self {
-            test_model,
             mouse_pressed: false,
             camera_controller: CameraController::new(4., 0.4),
             texture_bind_group_layout,
