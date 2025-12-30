@@ -1,3 +1,4 @@
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 
 use crate::commands::CommandHandle;

@@ -8,6 +8,7 @@ use std::io::{BufReader, Cursor, Read};
 use std::marker::PhantomData;
 use std::path::Path;
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 
 pub mod output_markers {
@@ -15,6 +16,7 @@ pub mod output_markers {
     pub struct OutputEnabled;
 }
 
+#[cfg_attr(feature = "python", pyclass)]
 #[pyclass]
 pub struct OutputHandle<O> {
     pub(super) stream: Option<OutputStream>,
