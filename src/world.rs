@@ -76,7 +76,7 @@ impl ModelState {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "python", pyclass)]
-pub struct Entity {
+pub struct Entity { // TODO
     pub id: u32,
     pub model: ModelState,
     pub pos: Point3<f32>,
