@@ -3,8 +3,6 @@
 [workspace]
 resolver = "3"
 members = ["crates/audio", "crates/event_derive", "crates/graphics", "crates/graphics_core", "crates/quickstart", "crates/event_derive"]
-#remove when ready
-publish = false
 
 [package]
 name = "age_engine"
@@ -12,6 +10,7 @@ version = "0.1.1"
 edition = "2024"
 authors = ["Jonathan Schmittat"]
 
+#to be removed when proper testing is underway (both)
 [[bin]]
 name="events"
 path="tests/events.rs"
@@ -22,15 +21,14 @@ path = "tests/general.rs"
 
 [dependencies]
 #graphics={path="./graphics"}
-graphics_core={path="crates/graphics_core"}
-audio={path="./audio"}
+graphics_core={path="crates/graphics_core",version="0.1.1"}
+audio={path="crates/audio", version="0.1.1"}
 #quickstart={path="./quickstart"}
-event_derive={path= "crates/event_derive" }
+event_derive={path= "crates/event_derive",version="0.1.1"}
+
 anymap = "0.12.1"
 pyo3 = { version = "0.27.2", optional = true }
 
-[dependencies.anyhow]
-version="1.0.98"
 
 [dependencies.winit]
 version="0.30.12"
