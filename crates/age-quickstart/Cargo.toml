@@ -1,3 +1,5 @@
+#pre-build, non-engine level stuff to get started faster
+
 [package]
 name = "age-quickstart"
 version = "0.1.1"

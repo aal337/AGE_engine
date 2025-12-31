@@ -1,3 +1,5 @@
+#lower-level graphics + rendering
+
 [package]
 name = "age_rendering"
 version = "0.1.1"
