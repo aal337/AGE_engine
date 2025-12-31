@@ -34,21 +34,54 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "320119579fcad9c21884f5c4861d16174d0e06250625266f50fe6898340abefa"
 
 [[package]]
-name = "age_engine"
+name = "age-audio"
 version = "0.1.1"
 dependencies = [
- "audio",
+ "pyo3",
+ "rodio",
+]
+
+[[package]]
+name = "age-engine"
+version = "0.1.1"
+dependencies = [
  "bevy_ecs",
  "bytemuck",
  "cgmath",
  "env_logger",
- "event_derive",
- "graphics_core",
  "image",
  "log",
- "pollster 0.4.0",
+ "pollster",
  "pyo3",
  "tobj 3.2.5",
+ "wgpu",
+ "winit",
+]
+
+[[package]]
+name = "age-graphics"
+version = "0.1.0"
+
+[[package]]
+name = "age-quickstart"
+version = "0.1.1"
+
+[[package]]
+name = "age_rendering"
+version = "0.1.1"
+dependencies = [
+ "anyhow",
+ "bytemuck",
+ "cgmath",
+ "color",
+ "env_logger",
+ "fs_extra",
+ "glob",
+ "image",
+ "log",
+ "pollster",
+ "tobj 4.0.3",
+ "tokio",
  "wgpu",
  "winit",
 ]
@@ -228,14 +261,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1505bd5d3d116872e7271a6d4e16d81d0c8570876c8de68093a09ac269d8aac0"
 dependencies = [
  "portable-atomic",
-]
-
-[[package]]
-name = "audio"
-version = "0.1.1"
-dependencies = [
- "pyo3",
- "rodio",
 ]
 
 [[package]]
@@ -904,15 +929,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "event_derive"
-version = "0.1.1"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
 name = "extended"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1152,43 +1168,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fdf242682df893b86f33a73828fb09ca4b2d3bb6cc95249707fc684d27484b91"
 dependencies = [
  "bitflags 2.9.1",
-]
-
-[[package]]
-name = "graphics"
-version = "0.1.1"
-dependencies = [
- "anyhow",
- "bytemuck",
- "cgmath",
- "env_logger",
- "image",
- "log",
- "pollster 0.3.0",
- "tobj 3.2.5",
- "wgpu",
- "winit",
-]
-
-[[package]]
-name = "graphics_core"
-version = "0.1.1"
-dependencies = [
- "anyhow",
- "bytemuck",
- "cgmath",
- "color",
- "env_logger",
- "fs_extra",
- "glob",
- "graphics",
- "image",
- "log",
- "pollster 0.4.0",
- "tobj 4.0.3",
- "tokio",
- "wgpu",
- "winit",
 ]
 
 [[package]]
@@ -2100,12 +2079,6 @@ dependencies = [
 
 [[package]]
 name = "pollster"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "22686f4785f02a4fcc856d3b3bb19bf6c8160d103f7a99cc258bddd0251dc7f2"
-
-[[package]]
-name = "pollster"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2f3a9f18d041e6d0e102a0a46750538147e5e8992d3b4873aaafee2520b00ce3"
@@ -2224,10 +2197,6 @@ checksum = "331e97a1af0bf59823e6eadffe373d7b27f485be8748f71471c662c1f269b7fb"
 dependencies = [
  "memchr",
 ]
-
-[[package]]
-name = "quickstart"
-version = "0.1.1"
 
 [[package]]
 name = "quote"
