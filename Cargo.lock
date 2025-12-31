@@ -34,17 +34,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "320119579fcad9c21884f5c4861d16174d0e06250625266f50fe6898340abefa"
 
 [[package]]
-name = "age-audio"
-version = "0.1.1"
-dependencies = [
- "pyo3",
- "rodio",
-]
-
-[[package]]
 name = "age-engine"
 version = "0.1.1"
 dependencies = [
+ "age_audio",
  "bevy_ecs",
  "bytemuck",
  "cgmath",
@@ -59,18 +52,26 @@ dependencies = [
 ]
 
 [[package]]
-name = "age-graphics"
+name = "age_audio"
 version = "0.1.1"
 dependencies = [
- "age-rendering",
+ "pyo3",
+ "rodio",
 ]
 
 [[package]]
-name = "age-quickstart"
+name = "age_graphics"
+version = "0.1.1"
+dependencies = [
+ "age_rendering",
+]
+
+[[package]]
+name = "age_quickstart"
 version = "0.1.1"
 
 [[package]]
-name = "age-rendering"
+name = "age_rendering"
 version = "0.1.1"
 dependencies = [
  "anyhow",

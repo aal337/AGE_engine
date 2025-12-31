@@ -1,9 +1,9 @@
 #higher-level graphics
 
 [package]
-name = "age-graphics"
+name = "age_graphics"
 version = "0.1.1"
 edition = "2024"
 
 [dependencies]
-age-rendering={path="../age-rendering", version="0.1.1"}
+age_rendering={path="../age-rendering", version="0.1.1"}

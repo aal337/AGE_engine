@@ -1,5 +1,5 @@
 [package]
-name = "age-audio"
+name = "age_audio"
 version = "0.1.1"
 edition = "2024"
 
@@ -10,4 +10,4 @@ pyo3 = { version = "0.27.2", optional = true }
 version="0.21.1"
 
 [features]
-#python = ["dep:pyo3"]
+python = ["dep:pyo3"]

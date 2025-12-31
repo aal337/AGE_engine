@@ -1,7 +1,7 @@
 #pre-build, non-engine level stuff to get started faster
 
 [package]
-name = "age-quickstart"
+name = "age_quickstart"
 version = "0.1.1"
 edition = "2024"
 

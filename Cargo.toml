@@ -16,7 +16,7 @@ edition = "2024"
 authors = ["Jonathan Schmittat"]
 
 [dependencies]
-#soon
+age_audio={path="crates/age-audio"}
 
 env_logger="0.10.2"
 log="0.4.0"
@@ -34,7 +34,7 @@ bevy_ecs={version="0.17.3", features=["multi_threaded","async_executor","std"], 
 
 
 [features]
-python=["dep:pyo3"]
+python=["dep:pyo3", "age_audio/python"]
 #tracy
 #serde=["bevy_ecs/serialize"]
 #
