@@ -17,7 +17,6 @@ audio={path="crates/audio", version="0.1.1"}
 #quickstart={path="./quickstart"}
 event_derive={path= "crates/event_derive",version="0.1.1"}
 
-anymap = "0.12.1"
 env_logger="0.10.2"
 log="0.4.0"
 pollster="0.4.0"
@@ -28,6 +27,8 @@ image={version = "0.24.9",default-features = false,features = ["png", "jpeg"]}
 bytemuck={version = "1.16",features = ["derive"]}
 tobj={version = "3.2.5",default-features = false,features = ["async"]}
 pyo3 = { version = "0.27.2", optional = true }
+
+bevy_ecs="0.17.3"
 
 [features]
 python=["dep:pyo3"]
