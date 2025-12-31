@@ -29,7 +29,12 @@ bytemuck={version = "1.16",features = ["derive"]}
 tobj={version = "3.2.5",default-features = false,features = ["async"]}
 pyo3 = { version = "0.27.2", optional = true }
 
-bevy_ecs="0.17.3"
+#more granularity later
+bevy_ecs={version="0.17.3", features=["multi_threaded","async_executor","std"], default-features=false}
+
 
 [features]
 python=["dep:pyo3"]
+#tracy
+#serde=["bevy_ecs/serialize"]
+#
