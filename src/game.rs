@@ -1,7 +1,7 @@
 use bevy_ecs::world::World;
 
 pub struct Game {
-    pub(crate) world: World,
+    pub world: World,
 }
 
 impl Game {
