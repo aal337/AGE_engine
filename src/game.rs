@@ -1,9 +1,16 @@
+use bevy_ecs::world::World;
+
 pub struct Game {
-    world: bevy_ecs::world::World,
+    pub world: World,
 }
 
 impl Game {
-    pub fn new() {
-        
+    pub fn new() -> Game {
+        Game {
+            world: World::new()
+        }
+    }
+    pub fn run(self) {
+       
     }
 }
